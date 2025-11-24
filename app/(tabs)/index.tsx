@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   View, 
   Text, 
@@ -13,22 +13,12 @@ import { FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppState } from '../context/StateContext';
+import LogVitalModal from '../components/LogVitalModal';
+import LogMealModal from '../components/LogMealModal';
+import StepCounterModal from '../components/StepCounterModal'; // Import StepCounterModal
+import { THEME } from '../constants/theme';
 
 const { width } = Dimensions.get('window');
-
-// THEME: "OBSIDIAN ELITE"
-const THEME = {
-    bg: '#000000',           
-    cardDark: '#0A0A0A',     
-    cardLight: '#171717',    
-    accent: '#3B82F6',       
-    accentDim: 'rgba(59, 130, 246, 0.15)',
-    textMain: '#FFFFFF',
-    textSec: '#888888',      
-    border: '#262626',       
-    success: '#10B981',      
-    danger: '#EF4444',       
-};
 
 // COMPONENT: Manual Data Tile
 const MetricTile = ({ label, value, unit, icon, trend, onPress }) => (
@@ -111,16 +101,35 @@ const QuickLogButton = ({ label, icon, onPress }) => (
              <FontAwesome6 name={icon} size={14} color={THEME.textMain} />
         </View>
         <Text style={styles.quickLogText}>{label}</Text>
-        <Ionicons name="add" size={14} color={THEME.accent} />
+        <Ionicons name="arrow-forward" size={14} color={THEME.accent} />
     </TouchableOpacity>
 );
 
 const HomeScreen = () => {
     const { state } = useAppState();
-    const { user, readiness, vitals, workout } = state;
+    const { user, readiness, vitals, workout, meals } = state;
+
+    const [isWeightModalVisible, setWeightModalVisible] = useState(false);
+    const [isWaterModalVisible, setWaterModalVisible] = useState(false);
+    const [isSleepModalVisible, setSleepModalVisible] = useState(false);
+    const [isMoodModalVisible, setMoodModalVisible] = useState(false);
+    const [isSorenessModalVisible, setSorenessModalVisible] = useState(false);
+    const [isLogMealModalVisible, setLogMealModalVisible] = useState(false);
+    const [isStepCounterModalVisible, setStepCounterModalVisible] = useState(false); // New state for StepCounterModal
+
+    // Debugging: Log modal visibility changes
+    useEffect(() => {
+        console.log('isLogMealModalVisible changed:', isLogMealModalVisible);
+    }, [isLogMealModalVisible]);
+
 
     const today = new Date();
     const dateString = today.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).toUpperCase();
+    const isoDateString = today.toISOString().split('T')[0]; // YYYY-MM-DD
+
+    // Calculate today's total calories
+    const todayMeals = meals.filter(meal => meal.date === isoDateString);
+    const todayTotalCalories = todayMeals.reduce((sum, meal) => sum + meal.totalCalories, 0);
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -142,27 +151,28 @@ const HomeScreen = () => {
                 <ReadinessDashboard 
                     readiness={readiness} 
                     vitals={vitals}
-                    onLogPress={() => console.log('Log Entry Pressed')}
-                    onSleepPress={() => console.log('Sleep Pressed')}
-                    onMoodPress={() => console.log('Mood Pressed')}
-                    onSorenessPress={() => console.log('Soreness Pressed')}
+                    onLogPress={() => setSorenessModalVisible(true)} // Example: Readiness Log Entry opens soreness for now
+                    onSleepPress={() => setSleepModalVisible(true)}
+                    onMoodPress={() => setMoodModalVisible(true)}
+                    onSorenessPress={() => setSorenessModalVisible(true)}
                 />
 
                 <Text style={styles.sectionLabel}>UPDATE VITALS</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.quickLogScroll}>
-                    <QuickLogButton label="Weight" icon="weight-scale" onPress={() => console.log('Log Weight')} />
-                    <QuickLogButton label="Water" icon="glass-water" onPress={() => console.log('Log Water')} />
-                    <QuickLogButton label="Sleep" icon="bed" onPress={() => console.log('Log Sleep')} />
-                    <QuickLogButton label="Mood" icon="face-smile" onPress={() => console.log('Log Mood')} />
+                    <QuickLogButton label="Weight" icon="weight-scale" onPress={() => setWeightModalVisible(true)} />
+                    <QuickLogButton label="Water" icon="glass-water" onPress={() => setWaterModalVisible(true)} />
+                    <QuickLogButton label="Sleep" icon="bed" onPress={() => setSleepModalVisible(true)} />
+                    <QuickLogButton label="Mood" icon="face-smile" onPress={() => setMoodModalVisible(true)} />
                 </ScrollView>
 
                 <Text style={[styles.sectionLabel, {marginTop: 24}]}>METRICS // TODAY</Text>
                 <View style={styles.gridContainer}>
-                    <MetricTile icon="person-walking" label="CARDIO" value={vitals.cardio} unit="MIN" trend="up" onPress={() => console.log('Cardio Pressed')} />
-                    <MetricTile icon="fire" label="CALORIES" value={vitals.calories} unit="KCAL" trend="up" onPress={() => console.log('Calories Pressed')} />
-                    <MetricTile icon="glass-water" label="HYDRATION" value={vitals.water} unit="L" onPress={() => console.log('Hydration Pressed')} />
-                    <MetricTile icon="weight-scale" label="WEIGHT" value={vitals.weight} unit="KG" onPress={() => console.log('Weight Pressed')} />
+                    <MetricTile icon="person-walking" label="CARDIO" value={state.todaySteps} unit="STEPS" trend="up" />
+                    <MetricTile icon="fire" label="CALORIES" value={todayTotalCalories} unit="KCAL" trend="up" onPress={() => { console.log('Calories MetricTile Pressed'); setLogMealModalVisible(true); }} />
+                    <MetricTile icon="glass-water" label="HYDRATION" value={vitals.water} unit="L" onPress={() => setWaterModalVisible(true)} />
+                    <MetricTile icon="weight-scale" label="WEIGHT" value={vitals.weight} unit="KG" onPress={() => setWeightModalVisible(true)} />
                 </View>
+
 
                 <View style={styles.agendaHeader}>
                     <Text style={styles.sectionLabel}>PROTOCOL // 16:00</Text>
@@ -210,6 +220,48 @@ const HomeScreen = () => {
 
                 <View style={{height: 100}} /> 
             </ScrollView>
+
+            {/* Modals */}
+            <LogVitalModal
+                isVisible={isWeightModalVisible}
+                onClose={() => setWeightModalVisible(false)}
+                type="weight"
+                currentValue={vitals.weight}
+            />
+            <LogVitalModal
+                isVisible={isWaterModalVisible}
+                onClose={() => setWaterModalVisible(false)}
+                type="water"
+                currentValue={vitals.water}
+            />
+            <LogVitalModal
+                isVisible={isSleepModalVisible}
+                onClose={() => setSleepModalVisible(false)}
+                type="sleep"
+                currentValue={vitals.sleep}
+            />
+            <LogVitalModal
+                isVisible={isMoodModalVisible}
+                onClose={() => setMoodModalVisible(false)}
+                type="mood"
+                currentValue={vitals.mood}
+            />
+            <LogVitalModal
+                isVisible={isSorenessModalVisible}
+                onClose={() => setSorenessModalVisible(false)}
+                type="soreness"
+                currentValue={vitals.soreness}
+            />
+            {/* Log Meal Modal */}
+            <LogMealModal
+                isVisible={isLogMealModalVisible}
+                onClose={() => setLogMealModalVisible(false)}
+            />
+            {/* Step Counter Modal */}
+            <StepCounterModal
+                isVisible={isStepCounterModalVisible}
+                onClose={() => setStepCounterModalVisible(false)}
+            />
         </SafeAreaView>
     );
 };

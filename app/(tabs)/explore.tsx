@@ -27,20 +27,20 @@ const THEME = {
     inputBg: 'rgba(255, 255, 255, 0.05)',
 };
 
-// DATA: Enhanced with "Count" for the tech feel
+// DATA: Strictly Bodybuilding & Running
 const CATEGORIES = [
-    { title: 'HYPERTROPHY', count: '42 PLANS', icon: 'dumbbell', color: '#EF4444' }, // Red
-    { title: 'ENDURANCE', count: '18 PLANS', icon: 'person-running', color: '#3B82F6' }, // Blue
-    { title: 'CALISTHENICS', count: '12 PLANS', icon: 'fire', color: '#F59E0B' }, // Amber
-    { title: 'COMBAT HIIT', count: '08 PLANS', icon: 'bolt', color: '#EAB308' }, // Yellow
-    { title: 'POWERLIFTING', count: '15 PLANS', icon: 'hand-fist', color: '#EF4444' },
-    { title: 'MOBILITY', count: '24 PLANS', icon: 'wind', color: '#10B981' }, // Emerald
-    { title: 'YOGA FLOW', count: '31 PLANS', icon: 'spa', color: '#8B5CF6' }, // Violet
-    { title: 'RECOVERY', count: '09 PLANS', icon: 'lungs', color: '#06B6D4' }, // Cyan
+    { title: 'HYPERTROPHY', count: 'GYM • 42 PLANS', icon: 'dumbbell', color: '#EF4444' }, // Red (Muscle)
+    { title: 'HOME IRON', count: 'DB • 18 PLANS', icon: 'house', color: '#F97316' }, // Orange (Home)
+    { title: 'TRACK RUN', count: 'SPEED • 12 PLANS', icon: 'stopwatch', color: '#3B82F6' }, // Blue (Speed)
+    { title: 'POWERLIFTING', count: 'BARBELL • 15 PLANS', icon: 'weight-hanging', color: '#EF4444' }, // Red
+    { title: 'CALISTHENICS', count: 'BW • 24 PLANS', icon: 'person', color: '#EAB308' }, // Yellow
+    { title: 'DISTANCE', count: 'AEROBIC • 09 PLANS', icon: 'route', color: '#10B981' }, // Green (Endurance)
+    { title: 'ABS & CORE', count: 'ISOLATION • 31 PLANS', icon: 'cube', color: '#8B5CF6' }, // Violet
+    { title: 'MOBILITY', count: 'REPAIR • 14 PLANS', icon: 'person-stretching', color: '#06B6D4' }, // Cyan
 ];
 
 // COMPONENT: Featured/Trending Card
-const TrendingCard = ({ title, subtitle, difficulty, color }) => (
+const TrendingCard = ({ title, subtitle, difficulty, color, icon }) => (
     <TouchableOpacity style={styles.trendingCard}>
         <LinearGradient
             colors={['#111', '#050505']}
@@ -55,8 +55,11 @@ const TrendingCard = ({ title, subtitle, difficulty, color }) => (
             />
             
             <View style={styles.trendingContent}>
-                <View style={styles.trendingBadge}>
-                    <Text style={[styles.badgeText, {color: color}]}>{difficulty}</Text>
+                <View style={styles.trendingHeader}>
+                    <View style={styles.trendingBadge}>
+                        <Text style={[styles.badgeText, {color: color}]}>{difficulty}</Text>
+                    </View>
+                    <FontAwesome6 name={icon} size={14} color={THEME.textSec} />
                 </View>
                 <View>
                     <Text style={styles.trendingTitle}>{title}</Text>
@@ -108,8 +111,8 @@ export default function ExploreScreen() {
         {/* 1. HEADER */}
         <View style={styles.header}>
             <View>
-                <Text style={styles.headerSubtitle}>DATABASE_ACCESS</Text>
-                <Text style={styles.headerTitle}>DISCOVER</Text>
+                <Text style={styles.headerSubtitle}>PROTOCOL_LIBRARY</Text>
+                <Text style={styles.headerTitle}>EXPLORE</Text>
             </View>
             <TouchableOpacity style={styles.filterBtn}>
                 <Ionicons name="options-outline" size={20} color={THEME.textMain} />
@@ -124,7 +127,7 @@ export default function ExploreScreen() {
             >
                 <Ionicons name="search" size={18} color={THEME.accent} style={{marginRight: 12}} />
                 <TextInput 
-                    placeholder="SEARCH PROTOCOLS..." 
+                    placeholder="SEARCH OPERATIONS..." 
                     placeholderTextColor={THEME.textSec}
                     style={styles.input}
                 />
@@ -137,28 +140,31 @@ export default function ExploreScreen() {
         {/* 3. TRENDING OPS (Horizontal Scroll) */}
         <View style={styles.section}>
             <View style={styles.sectionHeader}>
-                <Text style={styles.sectionLabel}>FEATURED OPERATIONS</Text>
+                <Text style={styles.sectionLabel}>FEATURED OPS</Text>
                 <Ionicons name="chevron-forward" size={14} color={THEME.accent} />
             </View>
             
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.trendingScroll}>
                 <TrendingCard 
-                    title="THE SPARTAN 300" 
-                    subtitle="High Volume Calisthenics" 
-                    difficulty="ELITE" 
+                    title="THE 5x5 PROTOCOL" 
+                    subtitle="Pure Strength Foundation" 
+                    difficulty="NOVICE" 
                     color="#EF4444" 
+                    icon="dumbbell"
                 />
                 <TrendingCard 
-                    title="DEEP TISSUE" 
-                    subtitle="Mobility & Repair" 
-                    difficulty="BEGINNER" 
+                    title="SPRINT INTERVALS" 
+                    subtitle="VO2 Max Development" 
+                    difficulty="ELITE" 
                     color="#3B82F6" 
+                    icon="stopwatch"
                 />
                 <TrendingCard 
-                    title="IRON FOUNDATION" 
-                    subtitle="Compound Lifts 5x5" 
+                    title="HOME DUMBBELL" 
+                    subtitle="Hypertrophy A/B Split" 
                     difficulty="INTERMEDIATE" 
                     color="#F59E0B" 
+                    icon="house"
                 />
             </ScrollView>
         </View>
@@ -306,6 +312,11 @@ const styles = StyleSheet.create({
       flex: 1,
       justifyContent: 'space-between',
   },
+  trendingHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+  },
   trendingBadge: {
       alignSelf: 'flex-start',
       backgroundColor: 'rgba(0,0,0,0.5)',
@@ -326,6 +337,7 @@ const styles = StyleSheet.create({
       fontWeight: '800',
       fontStyle: 'italic',
       letterSpacing: 0.5,
+      marginTop: 8,
   },
   trendingSub: {
       color: THEME.textSec,

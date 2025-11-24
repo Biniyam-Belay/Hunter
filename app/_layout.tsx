@@ -4,6 +4,7 @@ import { useFonts, Oswald_400Regular, Oswald_700Bold } from '@expo-google-fonts/
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { StateProvider, useAppState } from './context/StateContext';
+import { StepTracker } from './lib/StepTracker'; // Import StepTracker
 
 SplashScreen.preventAutoHideAsync();
 
@@ -15,6 +16,20 @@ function RootLayoutNav() {
       SplashScreen.hideAsync();
     }
   }, [isReady]);
+
+  // Auto-start Pedometer on app mount
+  useEffect(() => {
+    const initPedometer = async () => {
+      const isTracking = await StepTracker.isTracking();
+      if (!isTracking) {
+        console.log('Pedometer not tracking, attempting to start...');
+        await StepTracker.init(); // Use StepTracker.init()
+      } else {
+        console.log('Pedometer already tracking.');
+      }
+    };
+    initPedometer();
+  }, []); // Run once on mount
 
   if (!isReady) {
     return null;
